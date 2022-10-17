@@ -1,0 +1,73 @@
+﻿
+@model X.PagedList.IPagedList<MvcVendingMachine.ViewModel.PembayaranViewModel>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<form asp-action="ListProduct" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Cari Barang <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Search" class="btn btn-outline-primary" /> |
+            <a asp-action="Index">Back to Full List</a>
+        </p>
+    </div>
+</form>
+
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="ListProduct" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> Nama Product</a>
+            </th>
+            <th>
+                <a asp-action="ListProduct" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> Harga Product</a>
+            </th>
+            <th>
+                <a asp-action="ListProduct" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> Stock Product</a>
+            </th>  
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Namaproduk)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Hargaproduk)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Stock)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@*paggingList*@
+
+@Html.PagedListPager(Model, page => Url.Action("ListProduct", new {page = page, sortOrder = ViewBag.CurrentSort, searchString = ViewBag.CurrentFilter}),
+    new X.PagedList.Web.Common.PagedListRenderOptions
+{
+    DisplayItemSliceAndTotal = true,
+    ContainerDivClasses = new[]{"navigation"},
+    LiElementClasses = new[]{"page-item"},
+    PageClasses = new[]{"page-link"},
+})
+
+@section Scripts{
+    <script>
+        $(document).ready(function(){
+            $('ul.pagination > li.disabled > a').addClass('page-link');
+        });
+    </script>
+}

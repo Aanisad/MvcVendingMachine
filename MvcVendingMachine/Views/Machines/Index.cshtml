@@ -1,0 +1,75 @@
+﻿@model MvcVendingMachine.ViewModel.PembayaranViewModel
+
+<h1><center>Menu</center></h1>
+<br />
+
+
+<form method="post" asp-action="SubmitTopup">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h4 class="text-black">Topup </h4>
+            <hr />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="nominal"></label>
+            <input asp-for="nominal" class="form-control" data-val-required="The Price field is required." />
+            <span asp-validation-for="nominal" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-dark" style="width:150px">Topup</button>
+    </div>
+</form>
+
+<br />
+
+
+<p>
+    Saldo anda adalah : @Model.totalNominal
+</p>
+<br /><br />
+<a asp-controller="Machines" asp-action="ListProduct" class="btn btn-primary" style="width:150px"> Daftar Menu </a>
+<br />
+<hr />
+
+
+<br />
+<form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Namaproduk)</a>
+                </th>
+                <th>    
+                    @Html.DisplayNameFor(model => model.Stock)</a>
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Hargaproduk)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in ViewBag.mesin)
+            {
+                <tr>
+                    <td>
+                        @item.Namaproduk
+                    </td>
+                    <td>
+                        @item.Stock
+                    </td>
+                    <td>
+                        @item.Hargaproduk
+                    </td>
+                    <td>
+                        <input type="submit" value="Beli" class="btn btn-primary text-white" asp-controller="Machines" asp-action="Belibtn" asp-route-id="@item.Id">
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+

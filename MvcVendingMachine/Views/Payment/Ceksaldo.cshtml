@@ -1,0 +1,32 @@
+﻿@model IEnumerable<Pembayarann>
+
+@{
+    ViewData["Title"] = "Ceksaldo";
+}
+
+<h4>History Topup</h4>
+
+
+
+<table class="table table-bordered table-striped" style="width:50%">
+    <thead>
+        <tr>
+            <th>
+                Nominal
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var obj in Model)
+        {
+            <tr>
+                <td width="30%">
+                    @obj.nominal
+                </td>
+            </tr>
+        }
+        <tr>
+        </tr>
+    </tbody>
+</table>
+

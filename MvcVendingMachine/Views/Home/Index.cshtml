@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1>Welcome</h1>
+
+@if(User.Identity.IsAuthenticated)
+{
+    @if (User.IsInRole("Admin"))
+    {
+        <h2> Kamu adalah Admin </h2>
+    }
+    else
+    {
+        <h2> Kamu adalah User </h2>
+    }
+}
+
+</div>
