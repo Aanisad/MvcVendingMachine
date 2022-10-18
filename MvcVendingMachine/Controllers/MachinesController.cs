@@ -53,7 +53,7 @@ namespace MvcVendingMachine.Controllers
             }
 
             //Viewdata table barang
-            ViewData["Mesin"] = Mesin;
+            ViewData["Mesin"] = Mesin.ToList();
             return View(vm);
         }
 
@@ -120,7 +120,7 @@ namespace MvcVendingMachine.Controllers
                 vm.Stock = item.Stock;
                 items.Add(vm);
             }
-            
+
             //variable wajib 4
             //return data sebagai penampung items dan semua variable
             IPagedList<PembayaranViewModel> returnData = new StaticPagedList<PembayaranViewModel>(items, pageNumber, pageSize, totalItems);
@@ -136,13 +136,13 @@ namespace MvcVendingMachine.Controllers
         public async Task<IActionResult> SubmitTopup(PembayaranViewModel vm)
         {
             //Ambil data pembayaran
-            var data = _context.Pembayaran; 
+            var data = _context.Pembayaran;
 
 
             //jika datanya 0
             if (data.Count() > 0)
             {
-                
+
                 foreach (var item in _context.Pembayaran.ToList())
                 {
                     //memanggil nominal
@@ -153,7 +153,7 @@ namespace MvcVendingMachine.Controllers
                     decimal topup = vm.nominal;
                     decimal totalharga = total + topup; //menjumlahkan nominal topup 
 
-                    item.nominal = totalharga; 
+                    item.nominal = totalharga;
                     _context.Update(item);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("Index");
@@ -178,7 +178,7 @@ namespace MvcVendingMachine.Controllers
 
             return View("Index", vm.totalNominal);
         }
-        
+
 
         //tampilan Create / tambah barang baru = hanya bisa dilihat oleh admin
         [Authorize(Roles = "Admin")]
@@ -216,18 +216,12 @@ namespace MvcVendingMachine.Controllers
         [HttpPost]
         public async Task<IActionResult> Beli(MachineViewModel vm)
         {
-            //Jika stock barang 0 
+            decimal total = vm.totalNominal;
             var data = _context.Machine;
+            int hargaproduct = vm.Hargaproduk;
             int stockbarang = _context.Machine.Sum(i => i.Stock);
-            //memanggil total nominal modelview
-            if (data.Count() > 0)
-            {
-                //tidak bisa dibeli
-            }
-            else
-            {
-                //bisadibeli 
-            }
+
+
 
             //ambil ID
             int id = vm.Id;
@@ -296,8 +290,10 @@ namespace MvcVendingMachine.Controllers
         }
 
         //Belibtn
-        public async Task<IActionResult> Belibtn(int? id, MachineViewModel vm)
+        public async Task<IActionResult> Belibtn(int? id, PembayaranViewModel vm)
         {
+
+
             //ambil ID 
             var machine = _context.Machine.Where(m => m.Id == id).Single();
             var nominal = _context.Pembayaran.Sum(i => i.nominal);
@@ -308,37 +304,45 @@ namespace MvcVendingMachine.Controllers
             //Ambil harga baramg
             int hargaproduk = machine.Hargaproduk;
 
-
             int resultstock = 0;
 
             //ambil stock
             int stock = machine.Stock;
 
-
-            //Kurangin saldo (perulangan)
-            foreach (var item in _context.Pembayaran.ToList())
+            //nominal kurang dari harga
+            if (Convert.ToInt32(nominal) < hargaproduk)
             {
-                item.nominal = _context.Pembayaran.Sum(i => i.nominal);
-                decimal total = item.nominal;
+                ViewData["Error"] = "Saldo tidak cukup";
+                ViewData["Mesin"] = _context.Machine.ToList();
+                return View("Index", vm);
+            }
+            else
+            {
+                //Kurangin saldo (perulangan)
+                foreach (var item in _context.Pembayaran.ToList())
+                {
+                    item.nominal = _context.Pembayaran.Sum(i => i.nominal);
+                    decimal total = item.nominal;
 
-                decimal totalnominal = nominal - hargaproduk;
+                    decimal totalnominal = nominal - hargaproduk;
 
-                item.nominal = totalnominal;
-                _context.Update(item);
+                    item.nominal = totalnominal;
+                    _context.Update(item);
+                    await _context.SaveChangesAsync();
+                }
+
+                //Kurangin stock
+                resultstock = stock - 1;
+
+                //update stock
+                machine.Stock = resultstock;
+                _context.Update(machine);
                 await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index");
             }
 
-
-
-            //Kurangin stock
-            resultstock = stock - 1;
-
-            //update stock
-            machine.Stock = resultstock;
-            _context.Update(machine);
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index");
+            return View(vm);
 
         }
 
@@ -393,7 +397,7 @@ namespace MvcVendingMachine.Controllers
             return View(machine);
         }
 
-        
+
 
     }
 }

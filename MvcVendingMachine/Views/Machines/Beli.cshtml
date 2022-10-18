@@ -38,6 +38,9 @@
         </div>
    <br />
 
+   <p>
+       @ViewBag.Error
+   </p>
     <input type="submit" value="simpan" class="btn btn-primary text-white" asp-controller="Machines" asp-action="Belibtn" asp-route-id="@Model.Id" />
     <a asp-controller="Machines" asp-action="Index" class="btn btn-secondary" style="width:150px">
         Menu
