@@ -1,5 +1,4 @@
-﻿
-@model X.PagedList.IPagedList<MvcVendingMachine.ViewModel.PembayaranViewModel>
+﻿@model X.PagedList.IPagedList<MvcVendingMachine.ViewModel.PembayaranViewModel>
 @using X.PagedList.Mvc.Core
 
 @{
@@ -31,9 +30,9 @@
             <th>
                 <a asp-action="ListProduct" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> Stock Product</a>
             </th>
-            <th>
+           @* <th>
                 <a asp-action="ListProduct" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]"> Image </a>
-            </th>
+            </th>*@
         </tr>
     </thead>
     <tbody>
@@ -49,9 +48,9 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Stock)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Gambar)
-                </td>
+         @*       <td>
+                    @Html.DisplayFor(modelItem => item.Image)
+                </td>*@
             </tr>
         }
     </tbody>
@@ -72,7 +71,7 @@
 
 @section Scripts{
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             $('ul.pagination > li.disabled > a').addClass('page-link');
         });
     </script>

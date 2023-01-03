@@ -5,12 +5,13 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Xunit.Abstractions;
+using Microsoft.AspNetCore.Http;
 
 namespace MvcVendingMachine.Models
 {
     public class Machine
     {
-
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         [DisplayName("Nama Produk")]
@@ -19,5 +20,9 @@ namespace MvcVendingMachine.Models
 
         [DisplayName("Harga Produk")]
         public int Hargaproduk { get; set; }
+
+        public string Gambar { get; set; }
+
+        public ICollection<Images> images { get; set; }
     }
 }

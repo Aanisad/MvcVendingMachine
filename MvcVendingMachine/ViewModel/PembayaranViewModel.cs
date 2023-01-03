@@ -28,7 +28,7 @@ namespace MvcVendingMachine.ViewModel
         
         public decimal nominal { get; set; }
         public decimal totalNominal { get; set; }
+        public IFormFile Gambar { get; set; }
 
-        
     }
 }

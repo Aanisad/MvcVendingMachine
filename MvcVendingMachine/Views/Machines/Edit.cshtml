@@ -1,8 +1,5 @@
-﻿@model MvcVendingMachine.Models.Machine
+﻿@model MvcVendingMachine.ViewModel.MachineImageViewModel
 
-@{
-    ViewData["Title"] = "Edit";
-}
 
 <h1>Edit</h1>
 
@@ -12,21 +9,35 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
+            <div class="mb-3">
                 <label asp-for="Namaproduk" class="control-label"></label>
                 <input asp-for="Namaproduk" class="form-control" />
                 <span asp-validation-for="Namaproduk" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Hargaproduk" class="control-label"></label>
-                <input asp-for="Hargaproduk" class="form-control" />
-                <span asp-validation-for="Hargaproduk" class="text-danger"></span>
-            </div>
+            </div><br />
             <div class="form-group">
                 <label asp-for="Stock" class="control-label"></label>
                 <input asp-for="Stock" class="form-control" />
                 <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
+            </div><br />
+            <div class="form-group">
+                <label asp-for="Hargaproduk" class="control-label"></label>
+                <input asp-for="Hargaproduk" class="form-control" />
+                <span asp-validation-for="Hargaproduk" class="text-danger"></span>
+            </div><br />
+            <div class="form-group">
+                <label asp-for="Gambar" class="control-label"></label>
+                @foreach (var images in Model.ImageString)
+                {
+                    <img src="~/Images/@images.ImagePath" class="rounded-circle" width="70" height="70" asp-append-version="true">
+                }
+                <span asp-validation-for="Gambar" class="text-danger"></span>
+            </div><br />
+@*            <div class="form-group">
+                @foreach (var images in Model.ImageString)
+                {
+                    <img src="~/Images/@images.ImagePath" class="rounded-circle" width="70" height="70" asp-append-version="true">
+                }
+            </div><br />*@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

@@ -1,10 +1,9 @@
-﻿@model MvcVendingMachine.Models.Machine
-
+﻿@model MvcVendingMachine.ViewModel.MachineImageViewModel
 
 <h4>Tambah Data</h4>
 <hr />
 
-<form asp-action="Create">
+<form asp-action="Create" enctype="multipart/form-data" asp-controller="Machines">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="border p-3 mt-4">
         <div class="row pb-2">
@@ -14,68 +13,27 @@
 
         <div class="mb-3">
             <label asp-for="Namaproduk" class="control-label"></label>
-            <input asp-for="Namaproduk" class="form-control" />
+            <input asp-for="Namaproduk" asp-items="@ViewBag.images" class="form-control" />
             <span asp-validation-for="Namaproduk" class="text-danger"></span>
-        </div>
+        </div><br />
         <div class="form-group">
             <label asp-for="Stock" class="control-label"></label>
             <input asp-for="Stock" class="form-control" />
             <span asp-validation-for="Stock" class="text-danger"></span>
-        </div>
+        </div><br />
         <div class="form-group">
             <label asp-for="Hargaproduk" class="control-label"></label>
             <input asp-for="Hargaproduk" class="form-control" />
             <span asp-validation-for="Hargaproduk" class="text-danger"></span>
         </div><br />
         <div class="form-group">
+            <label asp-for="Gambar" class="control-label"></label>
+            <input asp-for="Gambar" class="form-control" multiple/>
+            <span asp-validation-for="Gambar" class="text-danger"></span>
+        </div><br />
+        <div class="form-group">
             <input type="submit" value="Create" class="btn btn-primary" />
         </div>
     </div>
 </form>
-<br /><br />
 
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
-
-<h4>List Barang</h4>
-
-    <form>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Namaproduk)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Stock)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Hargaproduk)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in ViewBag.mesin)
-            {
-                <tr>
-                    <td>
-                        @item.Namaproduk
-                    </td>
-                    <td>
-                        @item.Stock
-                    </td>
-                    <td>
-                        @item.Hargaproduk
-                    </td>
-                    <td>
-                        <button class="btn btn-primary btn-link text-white" asp-action="Delete" asp-route-id="@item.Id">Delete</button> |
-                        <button class="btn btn-primary btn-link text-white" asp-action="Edit" asp-route-id="@item.Id">Edit</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</form>

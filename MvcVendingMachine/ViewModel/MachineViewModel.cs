@@ -23,11 +23,11 @@ namespace MvcVendingMachine.ViewModel
         public int Hargaproduk { get; set; }
 
         public decimal totalNominal { get; set; }
-        public int stockbarang { get; set; }
 
         [Range(1, 100)]
         [DataType(DataType.Currency)]
         public decimal nominal { get; set; }
-        
+        public IFormFile Gambar { get; set; }
+
     }
 }

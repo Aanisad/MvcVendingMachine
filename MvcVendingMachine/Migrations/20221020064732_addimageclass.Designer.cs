@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MvcVendingMachine.Data;
 
@@ -11,9 +12,10 @@ using MvcVendingMachine.Data;
 namespace MvcVendingMachine.Migrations
 {
     [DbContext(typeof(MvcVendingMachineContext))]
-    partial class MvcVendingMachineContextModelSnapshot : ModelSnapshot
+    [Migration("20221020064732_addimageclass")]
+    partial class addimageclass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

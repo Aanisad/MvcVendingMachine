@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MvcVendingMachine.Data;
 
@@ -11,9 +12,10 @@ using MvcVendingMachine.Data;
 namespace MvcVendingMachine.Migrations
 {
     [DbContext(typeof(MvcVendingMachineContext))]
-    partial class MvcVendingMachineContextModelSnapshot : ModelSnapshot
+    [Migration("20221020020755_AddIdproduk")]
+    partial class AddIdproduk
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -228,21 +230,21 @@ namespace MvcVendingMachine.Migrations
 
             modelBuilder.Entity("MvcVendingMachine.Models.Images", b =>
                 {
-                    b.Property<int>("IdImage")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdImage"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("Id")
+                    b.Property<int>("Idproduk")
                         .HasColumnType("int");
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdImage");
+                    b.HasKey("Id");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("Idproduk");
 
                     b.ToTable("Image");
                 });
@@ -352,17 +354,12 @@ namespace MvcVendingMachine.Migrations
             modelBuilder.Entity("MvcVendingMachine.Models.Images", b =>
                 {
                     b.HasOne("MvcVendingMachine.Models.Machine", "Machine")
-                        .WithMany("images")
-                        .HasForeignKey("Id")
+                        .WithMany()
+                        .HasForeignKey("Idproduk")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Machine");
-                });
-
-            modelBuilder.Entity("MvcVendingMachine.Models.Machine", b =>
-                {
-                    b.Navigation("images");
                 });
 #pragma warning restore 612, 618
         }

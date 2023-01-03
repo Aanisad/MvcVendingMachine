@@ -15,16 +15,27 @@ using MvcVendingMachine.Models;
 using MvcVendingMachine.ViewModel;
 using X.PagedList;
 using Machine = MvcVendingMachine.Models.Machine;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using System.Drawing;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using System.Drawing.Printing;
+using Xunit.Abstractions;
+using System.Net;
+using System.Reflection.PortableExecutable;
+using static System.Net.Mime.MediaTypeNames;
+using Microsoft.Data.SqlClient;
 
 namespace MvcVendingMachine.Controllers
 {
     public class MachinesController : Controller
     {
         private readonly MvcVendingMachineContext _context;
+        private readonly IHostingEnvironment environment;
 
-        public MachinesController(MvcVendingMachineContext context)
+        public MachinesController(MvcVendingMachineContext context, IHostingEnvironment environment)
         {
             _context = context;
+            this.environment = environment;
         }
 
 
@@ -118,6 +129,7 @@ namespace MvcVendingMachine.Controllers
                 vm.Namaproduk = item.Namaproduk;
                 vm.Hargaproduk = item.Hargaproduk;
                 vm.Stock = item.Stock;
+                //vm.Gambar = item.Gambar;
                 items.Add(vm);
             }
 
@@ -129,6 +141,32 @@ namespace MvcVendingMachine.Controllers
             return View("ListProduct", returnData);
         }
 
+        //Detail barang + image
+        [HttpGet]
+        public async Task<IActionResult> Detail(int? id)
+        {
+           
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var data = _context.Machine.Where(i => i.Id == id).SingleOrDefault();
+
+            if (data == null)
+            {
+                return NotFound();
+            }
+
+            MachineImageViewModel vm = new MachineImageViewModel();
+            vm.Id = data.Id;
+            vm.Namaproduk = data.Namaproduk;
+            vm.Hargaproduk = data.Hargaproduk;
+            vm.Stock = data.Stock;
+            vm.ImageString = GetImages(data.Id);
+            
+            return View(vm);
+        }
 
         //POST Topup
         [HttpPost]
@@ -179,37 +217,134 @@ namespace MvcVendingMachine.Controllers
             return View("Index", vm.totalNominal);
         }
 
+        public List<ImagesViewModel> GetImages(int id)
+        {
+            List<ImagesViewModel> items = new List<ImagesViewModel>();
+            var images = from i in _context.Image
+                         join m in _context.Machine on i.Id equals m.Id
+                         where m.Id == id
+                         select new
+                         {
+                             m.Id,
+                             m.Namaproduk,
+                             m.Stock,
+                             m.Hargaproduk,
+                             i.IdImage,
+                             i.ImagePath
+                         };
+
+            foreach (var item in images.ToList())
+            {
+                ImagesViewModel vm = new ImagesViewModel();
+                vm.ImagePath = item.ImagePath;
+                items.Add(vm);
+            }
+
+            return (items);
+        }
+
+        [HttpGet]
+        public IActionResult Indexproduct()
+        {
+            IList<MachineImageViewModel> items = new List<MachineImageViewModel>();
+            var data = from m in _context.Machine
+                       join i in _context.Image on m.Id equals i.Id
+                       where m.Id == i.Id
+                       select new
+                       {
+                           m.Id,
+                           m.Namaproduk,
+                           m.Stock,
+                           m.Hargaproduk,
+                           i.IdImage,
+                           i.ImagePath
+                       };
+
+            var result = data.GroupBy(x => x.Id).Select(g => g.First());
+
+            foreach (var item in result)
+            {
+                MachineImageViewModel vm = new MachineImageViewModel();
+                vm.Id = item.Id;
+                vm.IdImage = item.IdImage;
+                vm.Namaproduk = item.Namaproduk;
+                vm.Hargaproduk = item.Hargaproduk;
+                vm.Stock = item.Stock;
+                vm.ImageString = GetImages(item.Id);
+                items.Add(vm);
+            }
+
+            return View(items);
+        }
 
         //tampilan Create / tambah barang baru = hanya bisa dilihat oleh admin
-        [Authorize(Roles = "Admin")]
-        //GET: Machines/Create
+        //[Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            //mengambil data barang
-            var Mesin = _context.Machine;
-            ViewData["Mesin"] = Mesin;
-            return View();
+            MachineImageViewModel vm = new MachineImageViewModel();
+            ViewBag.images = new SelectList(_context.Machine.ToList(), "Id", "Namaproduk");
 
+            return View(vm);
         }
 
         //Create / tambah barang baru = hanya bisa dilakukan oleh admin
-        [Authorize(Roles = "Admin")]
-        // POST: Machines/Create
+        //[Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Namaproduk,Stock,Hargaproduk")] Models.Machine machine)
+        public IActionResult Create(MachineImageViewModel vm)
         {
             if (ModelState.IsValid)
             {
+                Machine machine = new Machine();
+                machine.Namaproduk = vm.Namaproduk;
+                machine.Hargaproduk = vm.Hargaproduk;
+                machine.Stock = vm.Stock;
+
                 _context.Add(machine);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
-                TempData[SD.Success] = "Sukses di input";
-                return RedirectToAction(nameof(Create));
+                int idmachine = machine.Id;
+
+                foreach (var item in vm.Gambar)
+                {
+                    String stringFileName = UploadFile(item);
+                    var image = new Images
+                    {
+
+                        ImagePath = stringFileName,
+                        Id = idmachine
+                    };
+                    _context.Image.Add(image);
+                }
+                //var idmachine = 
+                _context.SaveChanges();
+                return RedirectToAction("Indexproduct");
+
             }
-
             return View("Create");
         }
+
+
+
+        private string UploadFile(IFormFile file)
+        {
+            string fileName = null;
+            if (file != null)
+            {
+                string uploadDir = Path.Combine(environment.WebRootPath, "Images");
+                fileName = Guid.NewGuid().ToString() + "_" + file.FileName;
+                string filePath = Path.Combine(uploadDir, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(fileStream);
+                }
+            }
+            return fileName;
+        }
+
+
+
+
 
         //TView beli barang
         // GET: Machines/Beli/5
@@ -250,6 +385,7 @@ namespace MvcVendingMachine.Controllers
         // GET: Machines/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+
             if (id == null || _context.Machine == null)
             {
                 return NotFound();
@@ -281,7 +417,8 @@ namespace MvcVendingMachine.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Create));
+            TempData[SD.Success] = "Berhasil di hapus";
+            return RedirectToAction(nameof(Indexproduct));
         }
 
         private bool MachineExists(int id)
@@ -312,7 +449,7 @@ namespace MvcVendingMachine.Controllers
             //nominal kurang dari harga
             if (Convert.ToInt32(nominal) < hargaproduk)
             {
-                ViewData["Error"] = "Saldo tidak cukup";
+                TempData[SD.Error] = " Saldo anda kurang ";
                 ViewData["Mesin"] = _context.Machine.ToList();
                 return View("Index", vm);
             }
@@ -350,26 +487,37 @@ namespace MvcVendingMachine.Controllers
         // GET: MvcVendingMachines/Edit
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Machine == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var Machine = await _context.Machine.FindAsync(id);
-            if (Machine == null)
+            var machine = _context.Machine.Where(i => i.Id == id).SingleOrDefault();
+         
+            if (machine == null)
             {
                 return NotFound();
             }
-            return View(Machine);
+            MachineImageViewModel vm = new MachineImageViewModel();
+            vm.Id = machine.Id;
+            vm.Namaproduk = machine.Namaproduk;
+            vm.Hargaproduk = machine.Hargaproduk;
+            vm.Stock = machine.Stock;
+            vm.ImageString = GetImages(machine.Id);
+
+            return View(vm);
+
         }
 
         //Edit barang - hanya bisa dilakukan oleh Admin
         // POST: MvcVendingMachines/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Namaproduk,Stock,Hargaproduk")] Machine machine)
+        public async Task<IActionResult> Editt(int? id)
         {
-            if (id != machine.Id)
+            var data = _context.Machine.Where(i => i.Id == id).SingleOrDefault();
+
+            if (id == null)
             {
                 return NotFound();
             }
@@ -378,12 +526,12 @@ namespace MvcVendingMachine.Controllers
             {
                 try
                 {
-                    _context.Update(machine);
+                    _context.Update(data);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MachineExists(machine.Id))
+                    if (!MachineExists(data.Id))
                     {
                         return NotFound();
                     }
@@ -394,10 +542,8 @@ namespace MvcVendingMachine.Controllers
                 }
                 return RedirectToAction(nameof(Create));
             }
-            return View(machine);
+            return View(data);
         }
-
-
 
     }
 }

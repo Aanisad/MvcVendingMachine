@@ -26,7 +26,7 @@
 
 
 <p>
-    Saldo anda adalah : @Model.totalNominal | @ViewBag.Error
+    Saldo anda adalah : @Model.totalNominal 
 </p>
 <br /><br />
 <a asp-controller="Machines" asp-action="ListProduct" class="btn btn-primary" style="width:150px"> Daftar Menu </a>
@@ -48,6 +48,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.Hargaproduk)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Gambar)
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -63,6 +66,9 @@
                     </td>
                     <td>
                         @item.Hargaproduk
+                    </td>
+                    <td>
+                        <img src="~/Images/@item.Gambar" class="rounded-circle" width="50" height="50" asp-append-version="true">
                     </td>
                     <td>
                         <input type="submit" value="Beli" class="btn btn-primary text-white" asp-controller="Machines" asp-action="Belibtn" asp-route-id="@item.Id">

@@ -22,6 +22,6 @@ namespace MvcVendingMachine.Data
         public DbSet<Machine> Machine { get; set; }
         public DbSet<Pembayarann> Pembayaran { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
+       public DbSet<Images> Image { get; set; }
     }
 }

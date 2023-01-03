@@ -1,0 +1,59 @@
+﻿@model IEnumerable<MvcVendingMachine.ViewModel.MachineImageViewModel>
+
+<h4>List Barang</h4>
+
+<a asp-action="Create" asp-controller="Machines">Tambah barang</a>
+<form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Namaproduk)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Stock)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Hargaproduk)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Gambar)
+                </th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                
+                <tr>
+                    <td>
+                        @item.Namaproduk
+                    </td>
+                    <td>
+                        @item.Stock
+                    </td>
+                    <td>
+                        @item.Hargaproduk
+                    </td>
+                    @*<td>  </td>*@
+                    <td>
+                        @foreach (var images in item.ImageString)
+                        {
+                            <img src="~/Images/@images.ImagePath" class="rounded-circle" width="50" height="50" asp-append-version="true">
+                           
+                        }
+                  </td>
+                    <td>
+                        <button class="btn btn-primary btn-link text-white" asp-action="Delete" asp-route-id="@item.Id" >Delete</button> |
+                        <button class="btn btn-primary btn-link text-white" asp-action="Edit" asp-route-id="@item.Id">Edit</button> |
+                        <button class="btn btn-primary btn-link text-white" asp-action="Detail" asp-route-id="@item.Id" >Detail</button>
+
+
+                    </td>
+                </tr>
+            }
+           
+        </tbody>
+    </table>
+</form>
